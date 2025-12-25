@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { 
   ValueScores, 
-  calculateHigherOrderScores, 
+  SCHWARTZ_VALUES,
   HIGHER_ORDER_VALUES,
   HigherOrderValue 
 } from '@/lib/schwartz-values';
@@ -11,19 +11,18 @@ interface SchwartzCircleProps {
   size?: number;
 }
 
-export function SchwartzCircle({ scores, size = 280 }: SchwartzCircleProps) {
-  const hoScores = useMemo(() => calculateHigherOrderScores(scores), [scores]);
-  
-  const quadrants: { key: HigherOrderValue; angle: number; color: string }[] = [
-    { key: 'openness', angle: -45, color: 'hsl(200, 70%, 50%)' },
-    { key: 'self-enhancement', angle: 45, color: 'hsl(25, 75%, 55%)' },
-    { key: 'conservation', angle: 135, color: 'hsl(140, 45%, 40%)' },
-    { key: 'self-transcendence', angle: 225, color: 'hsl(280, 55%, 55%)' },
-  ];
+const HIGHER_ORDER_COLORS: Record<HigherOrderValue, string> = {
+  'openness': 'hsl(200, 70%, 50%)',
+  'self-enhancement': 'hsl(25, 75%, 55%)',
+  'conservation': 'hsl(140, 45%, 40%)',
+  'self-transcendence': 'hsl(280, 55%, 55%)',
+};
 
+export function SchwartzCircle({ scores, size = 320 }: SchwartzCircleProps) {
   const center = size / 2;
-  const maxRadius = (size / 2) - 30;
-  const minRadius = 20;
+  const maxRadius = (size / 2) - 45;
+  const minRadius = 15;
+  const labelRadius = maxRadius + 28;
 
   // Convert score (0-7) to radius
   const scoreToRadius = (score: number) => {
@@ -31,115 +30,163 @@ export function SchwartzCircle({ scores, size = 280 }: SchwartzCircleProps) {
     return minRadius + normalized * (maxRadius - minRadius);
   };
 
-  // Generate path for the radar polygon
-  const radarPoints = quadrants.map(({ key, angle }) => {
-    const score = hoScores[key] ?? 3.5;
-    const radius = scoreToRadius(score);
-    const radians = (angle * Math.PI) / 180;
-    return {
-      x: center + radius * Math.cos(radians),
-      y: center + radius * Math.sin(radians),
-    };
-  });
+  // Calculate positions for each of the 19 values
+  const valuePositions = useMemo(() => {
+    const angleStep = (2 * Math.PI) / SCHWARTZ_VALUES.length;
+    const startAngle = -Math.PI / 2; // Start from top
+    
+    return SCHWARTZ_VALUES.map((value, index) => {
+      const angle = startAngle + index * angleStep;
+      const score = scores[value.code] ?? 3.5;
+      const radius = scoreToRadius(score);
+      
+      return {
+        value,
+        angle,
+        score,
+        x: center + radius * Math.cos(angle),
+        y: center + radius * Math.sin(angle),
+        labelX: center + labelRadius * Math.cos(angle),
+        labelY: center + labelRadius * Math.sin(angle),
+        color: HIGHER_ORDER_COLORS[value.higherOrderValue],
+      };
+    });
+  }, [scores, center, labelRadius]);
 
-  const radarPath = `M ${radarPoints.map(p => `${p.x},${p.y}`).join(' L ')} Z`;
+  // Generate radar polygon path
+  const radarPath = useMemo(() => {
+    const points = valuePositions.map(p => `${p.x},${p.y}`).join(' L ');
+    return `M ${points} Z`;
+  }, [valuePositions]);
+
+  // Generate axis lines
+  const axisLines = useMemo(() => {
+    const angleStep = (2 * Math.PI) / SCHWARTZ_VALUES.length;
+    const startAngle = -Math.PI / 2;
+    
+    return SCHWARTZ_VALUES.map((_, index) => {
+      const angle = startAngle + index * angleStep;
+      return {
+        x2: center + maxRadius * Math.cos(angle),
+        y2: center + maxRadius * Math.sin(angle),
+      };
+    });
+  }, [center, maxRadius]);
 
   return (
     <div className="relative flex items-center justify-center">
-      <svg width={size} height={size} className="transform -rotate-90">
-        {/* Background circles */}
+      <svg width={size} height={size} className="overflow-visible">
+        {/* Background concentric circles with scale numbers */}
         {[1, 2, 3, 4, 5, 6, 7].map((level) => (
-          <circle
-            key={level}
-            cx={center}
-            cy={center}
-            r={scoreToRadius(level)}
-            fill="none"
+          <g key={level}>
+            <circle
+              cx={center}
+              cy={center}
+              r={scoreToRadius(level)}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1"
+              className="text-border/30"
+            />
+            {/* Scale numbers on the right side */}
+            <text
+              x={center + 8}
+              y={center - scoreToRadius(level) + 4}
+              className="fill-muted-foreground text-[9px]"
+              textAnchor="start"
+            >
+              {level}
+            </text>
+          </g>
+        ))}
+        
+        {/* Axis lines from center to edge */}
+        {axisLines.map((line, i) => (
+          <line
+            key={i}
+            x1={center}
+            y1={center}
+            x2={line.x2}
+            y2={line.y2}
             stroke="currentColor"
             strokeWidth="1"
             className="text-border/40"
-            strokeDasharray="4 4"
           />
         ))}
-        
-        {/* Quadrant lines */}
-        {quadrants.map(({ angle }) => {
-          const radians = (angle * Math.PI) / 180;
-          const x2 = center + maxRadius * Math.cos(radians);
-          const y2 = center + maxRadius * Math.sin(radians);
-          return (
-            <line
-              key={angle}
-              x1={center}
-              y1={center}
-              x2={x2}
-              y2={y2}
-              stroke="currentColor"
-              strokeWidth="1"
-              className="text-border/60"
-            />
-          );
-        })}
 
         {/* Radar polygon fill */}
         <path
           d={radarPath}
-          fill="hsl(var(--primary) / 0.15)"
+          fill="hsl(var(--primary) / 0.2)"
           stroke="hsl(var(--primary))"
           strokeWidth="2"
           className="transition-all duration-300"
         />
 
         {/* Data points */}
-        {quadrants.map(({ key, angle, color }) => {
-          const score = hoScores[key] ?? 3.5;
-          const radius = scoreToRadius(score);
-          const radians = (angle * Math.PI) / 180;
-          const x = center + radius * Math.cos(radians);
-          const y = center + radius * Math.sin(radians);
-          
+        {valuePositions.map(({ value, x, y, color }) => (
+          <circle
+            key={value.code}
+            cx={x}
+            cy={y}
+            r={5}
+            fill={color}
+            stroke="hsl(var(--background))"
+            strokeWidth="2"
+            className="transition-all duration-300"
+          />
+        ))}
+
+        {/* Labels */}
+        {valuePositions.map(({ value, labelX, labelY, angle }) => {
+          // Determine text anchor based on position
+          let textAnchor: 'start' | 'middle' | 'end' = 'middle';
+          if (angle > -Math.PI / 4 && angle < Math.PI / 4) {
+            textAnchor = 'middle'; // top
+          } else if (angle >= Math.PI / 4 && angle <= (3 * Math.PI) / 4) {
+            textAnchor = 'start'; // right
+          } else if (angle > (3 * Math.PI) / 4 || angle < -(3 * Math.PI) / 4) {
+            textAnchor = 'middle'; // bottom
+          } else {
+            textAnchor = 'end'; // left
+          }
+
+          // Adjust vertical alignment
+          let dy = '0.35em';
+          if (angle > -Math.PI * 0.6 && angle < -Math.PI * 0.4) {
+            dy = '0.8em'; // top area
+          } else if (angle > Math.PI * 0.4 && angle < Math.PI * 0.6) {
+            dy = '-0.3em'; // bottom area
+          }
+
           return (
-            <circle
-              key={key}
-              cx={x}
-              cy={y}
-              r={6}
-              fill={color}
-              stroke="hsl(var(--background))"
-              strokeWidth="2"
-              className="transition-all duration-300"
-            />
+            <text
+              key={value.code}
+              x={labelX}
+              y={labelY}
+              textAnchor={textAnchor}
+              dy={dy}
+              className="fill-muted-foreground text-[10px] font-medium"
+            >
+              {value.code}
+            </text>
           );
         })}
       </svg>
 
-      {/* Labels */}
-      <div className="absolute inset-0 pointer-events-none">
-        {quadrants.map(({ key, angle, color }) => {
-          const labelDistance = maxRadius + 20;
-          const radians = ((angle - 90) * Math.PI) / 180; // Adjust for SVG rotation
-          const x = center + labelDistance * Math.cos(radians);
-          const y = center + labelDistance * Math.sin(radians);
-          const score = hoScores[key] ?? 3.5;
-          
-          return (
-            <div
-              key={key}
-              className="absolute transform -translate-x-1/2 -translate-y-1/2 text-center"
-              style={{ left: x, top: y }}
-            >
-              <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
-                {HIGHER_ORDER_VALUES[key].label.split(' ')[0]}
-              </div>
-              <div 
-                className="text-sm font-bold"
-                style={{ color }}
-              >
-                {score.toFixed(1)}
-              </div>
-            </div>
-          );
-        })}
+      {/* Legend */}
+      <div className="absolute -bottom-12 left-0 right-0 flex justify-center gap-4 flex-wrap">
+        {(Object.keys(HIGHER_ORDER_VALUES) as HigherOrderValue[]).map((key) => (
+          <div key={key} className="flex items-center gap-1.5">
+            <div 
+              className="w-2.5 h-2.5 rounded-full" 
+              style={{ backgroundColor: HIGHER_ORDER_COLORS[key] }}
+            />
+            <span className="text-[10px] text-muted-foreground">
+              {HIGHER_ORDER_VALUES[key].label.split(' ')[0]}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );
