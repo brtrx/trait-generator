@@ -9,106 +9,6 @@ import {
   HigherOrderValue 
 } from './schwartz-values';
 
-// Character archetypes with their value patterns
-interface Archetype {
-  name: string;
-  description: string;
-  primaryValues: string[]; // Top values this archetype emphasizes
-  secondaryPattern?: Partial<Record<HigherOrderValue, 'high' | 'low'>>;
-}
-
-const ARCHETYPES: Archetype[] = [
-  {
-    name: 'Dumbledore',
-    description: 'A wise mentor who prioritizes the greater good while nurturing individual growth. Values wisdom, tolerance, and benevolence above personal power.',
-    primaryValues: ['UNC', 'UNT', 'BEC', 'SDT'],
-    secondaryPattern: { 'self-transcendence': 'high', 'self-enhancement': 'low' },
-  },
-  {
-    name: 'Captain America',
-    description: 'A principled leader who embodies duty, tradition, and selfless service. Balances conformity to ideals with fierce protection of others.',
-    primaryValues: ['BED', 'COR', 'TRD', 'SES'],
-    secondaryPattern: { 'conservation': 'high', 'self-transcendence': 'high' },
-  },
-  {
-    name: 'Tony Stark',
-    description: 'A brilliant innovator who pursues excellence and independence. Combines achievement drive with creative self-direction.',
-    primaryValues: ['ACM', 'SDT', 'SDA', 'STI'],
-    secondaryPattern: { 'openness': 'high', 'self-enhancement': 'high' },
-  },
-  {
-    name: 'Hermione Granger',
-    description: 'A devoted scholar who values knowledge, rules, and loyalty to friends. Combines intellectual curiosity with dependability.',
-    primaryValues: ['SDT', 'COR', 'BED', 'ACM'],
-    secondaryPattern: { 'openness': 'high', 'conservation': 'high' },
-  },
-  {
-    name: 'Gandalf',
-    description: 'A humble guide who empowers others while maintaining ancient wisdom. Values nature, tolerance, and gentle influence over control.',
-    primaryValues: ['UNN', 'UNT', 'HUM', 'SDT'],
-    secondaryPattern: { 'self-transcendence': 'high', 'self-enhancement': 'low' },
-  },
-  {
-    name: 'Leslie Knope',
-    description: 'An enthusiastic public servant who combines ambition with genuine care for community. Balances achievement with benevolence.',
-    primaryValues: ['BEC', 'ACM', 'SES', 'BED'],
-    secondaryPattern: { 'self-transcendence': 'high', 'self-enhancement': 'high' },
-  },
-  {
-    name: "T'Challa",
-    description: 'A thoughtful leader who balances tradition with progress. Values security and heritage while remaining open to change.',
-    primaryValues: ['TRD', 'SES', 'UNC', 'SDA'],
-    secondaryPattern: { 'conservation': 'high', 'openness': 'high' },
-  },
-  {
-    name: 'Spock',
-    description: 'A logical mind who values truth and duty over emotion. Prioritizes intellectual self-direction while maintaining conformity to principles.',
-    primaryValues: ['SDT', 'COR', 'HUM', 'ACM'],
-    secondaryPattern: { 'openness': 'high', 'self-enhancement': 'low' },
-  },
-];
-
-function calculateArchetypeMatch(scores: ValueScores, archetype: Archetype): number {
-  let score = 0;
-  
-  // Score based on primary values (weighted more heavily)
-  const topValues = getTopValues(scores, 6).map(v => v.code);
-  archetype.primaryValues.forEach((code, index) => {
-    const position = topValues.indexOf(code);
-    if (position !== -1) {
-      score += (6 - position) * 2; // Higher weight for matching top positions
-    }
-  });
-  
-  // Score based on higher-order value patterns
-  if (archetype.secondaryPattern) {
-    const hoScores = calculateHigherOrderScores(scores);
-    const hoArray = Object.entries(hoScores).sort((a, b) => b[1] - a[1]);
-    const highHO = hoArray[0][0] as HigherOrderValue;
-    const lowHO = hoArray[hoArray.length - 1][0] as HigherOrderValue;
-    
-    if (archetype.secondaryPattern[highHO] === 'high') score += 3;
-    if (archetype.secondaryPattern[lowHO] === 'low') score += 3;
-  }
-  
-  return score;
-}
-
-function findBestArchetype(scores: ValueScores): Archetype {
-  let bestArchetype = ARCHETYPES[0];
-  let bestScore = -Infinity;
-  
-  ARCHETYPES.forEach(archetype => {
-    const matchScore = calculateArchetypeMatch(scores, archetype);
-    if (matchScore > bestScore) {
-      bestScore = matchScore;
-      bestArchetype = archetype;
-    }
-  });
-  
-  return bestArchetype;
-}
-
 function detectTensions(scores: ValueScores): string[] {
   const tensions: string[] = [];
   const hoScores = calculateHigherOrderScores(scores);
@@ -141,7 +41,6 @@ function detectTensions(scores: ValueScores): string[] {
 export function generateDescription(scores: ValueScores): string {
   const topValues = getTopValues(scores, 3);
   const bottomValues = getBottomValues(scores, 3);
-  const archetype = findBestArchetype(scores);
   const tensions = detectTensions(scores);
   
   // Build the description
@@ -167,24 +66,6 @@ export function generateDescription(scores: ValueScores): string {
   if (tensions.length > 0) {
     description += '\n\n**Notable patterns:** ';
     description += tensions[0] + '.';
-  }
-  
-  // Archetype section
-  description += '\n\n## WHO AM I MOST LIKE?\n\n';
-  description += `**${archetype.name}**\n\n`;
-  description += archetype.description + ' ';
-  
-  // Add specific rationale based on top values
-  const matchingValues = archetype.primaryValues
-    .filter(code => topValues.some(v => v.code === code))
-    .map(code => getValueByCode(code)?.label)
-    .filter(Boolean);
-  
-  if (matchingValues.length > 0) {
-    description += `Like ${archetype.name}, this profile emphasizes ${matchingValues.join(' and ')}, `;
-    description += `reflecting a similar approach to navigating challenges and relationships.`;
-  } else {
-    description += `The overall value pattern aligns with ${archetype.name}'s approach to balancing personal goals with broader concerns.`;
   }
   
   return description;
@@ -233,7 +114,6 @@ function getBottomValueMeaning(bottomValues: ReturnType<typeof getBottomValues>)
   
   return 'particular areas receiving less motivational emphasis';
 }
-
 export function generateSystemPrompt(scores: ValueScores): string {
   let prompt = 'You are an AI assistant with the following values based on a PVQ-RR survey:\n\n';
   
