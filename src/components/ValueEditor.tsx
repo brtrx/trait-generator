@@ -1,7 +1,12 @@
 import { useState, useCallback } from 'react';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import { 
   SchwartzValue, 
   ValueScores, 
@@ -79,33 +84,70 @@ function ValueQuadrant({ higherOrder, scores, onChange }: ValueQuadrantProps) {
   // Calculate average score for this quadrant
   const avgScore = values.reduce((sum, v) => sum + (scores[v.code] ?? 3.5), 0) / values.length;
 
+  // Handle coarse slider - adjusts all values proportionally
+  const handleCoarseChange = useCallback((newValues: number[]) => {
+    const newAvg = newValues[0];
+    const currentAvg = avgScore;
+    const delta = newAvg - currentAvg;
+    
+    values.forEach((v) => {
+      const currentScore = scores[v.code] ?? 3.5;
+      // Clamp to 0-7 range
+      const newScore = Math.min(7, Math.max(0, currentScore + delta));
+      onChange(v.code, newScore);
+    });
+  }, [avgScore, values, scores, onChange]);
+
   return (
-    <div className="quadrant-card animate-fade-in">
-      <div className="flex items-center justify-between mb-3">
-        <div>
-          <h3 className="font-serif text-lg font-semibold text-foreground">
-            {config.label}
-          </h3>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {config.description}
+    <AccordionItem value={higherOrder} className="border rounded-xl bg-card overflow-hidden">
+      <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-muted/50">
+        <div className="flex items-center justify-between w-full pr-2">
+          <div className="text-left">
+            <h3 className="font-serif text-lg font-semibold text-foreground">
+              {config.label}
+            </h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {config.description}
+            </p>
+          </div>
+          <div className={`px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary`}>
+            Avg: {avgScore.toFixed(2)}
+          </div>
+        </div>
+      </AccordionTrigger>
+      <AccordionContent className="px-4 pb-4">
+        {/* Coarse-grained slider */}
+        <div className="mb-4 p-3 rounded-lg bg-muted/50 border">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-foreground">Adjust All</span>
+            <span className="text-xs font-mono text-muted-foreground">{avgScore.toFixed(2)}</span>
+          </div>
+          <Slider
+            value={[avgScore]}
+            min={0}
+            max={7}
+            step={0.1}
+            onValueChange={handleCoarseChange}
+            className="w-full"
+          />
+          <p className="text-xs text-muted-foreground mt-2">
+            Move this slider to shift all {values.length} values in this category together
           </p>
         </div>
-        <div className={`px-2.5 py-1 rounded-full text-xs font-medium bg-${config.color}/10 text-${config.color}`}>
-          Avg: {avgScore.toFixed(2)}
+        
+        {/* Individual value sliders */}
+        <div className="space-y-1 divide-y divide-border/50">
+          {values.map((value) => (
+            <ValueSlider
+              key={value.code}
+              value={value}
+              score={scores[value.code] ?? 3.5}
+              onChange={onChange}
+            />
+          ))}
         </div>
-      </div>
-      
-      <div className="space-y-1 divide-y divide-border/50">
-        {values.map((value) => (
-          <ValueSlider
-            key={value.code}
-            value={value}
-            score={scores[value.code] ?? 3.5}
-            onChange={onChange}
-          />
-        ))}
-      </div>
-    </div>
+      </AccordionContent>
+    </AccordionItem>
   );
 }
 
@@ -130,7 +172,7 @@ export function ValueEditor({ scores, onChange }: ValueEditorProps) {
   ];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <Accordion type="multiple" defaultValue={['openness']} className="space-y-3">
       {quadrants.map((ho) => (
         <ValueQuadrant
           key={ho}
@@ -139,6 +181,6 @@ export function ValueEditor({ scores, onChange }: ValueEditorProps) {
           onChange={handleValueChange}
         />
       ))}
-    </div>
+    </Accordion>
   );
 }

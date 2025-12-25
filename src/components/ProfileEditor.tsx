@@ -197,23 +197,10 @@ export function ProfileEditor({ initialProfile, isSharedProfile = false }: Profi
             </div>
           </aside>
 
-          {/* Center: Value editor */}
-          <section className="order-1 xl:order-2">
-            <div className="mb-6">
-              <h2 className="font-serif text-2xl font-semibold mb-2">
-                Value Scores
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                Adjust each value from 0.0 to 7.0 using the sliders or input boxes.
-                Values are grouped by Schwartz's four higher-order categories.
-              </p>
-            </div>
-            <ValueEditor scores={scores} onChange={handleScoresChange} />
-          </section>
-
-          {/* Right sidebar: Generation */}
-          <aside className="order-3">
-            <div className="sticky top-24">
+          {/* Center: Generation + Value editor */}
+          <section className="order-1 xl:order-2 space-y-8">
+            {/* Output section - now at top */}
+            <div>
               <h2 className="font-serif text-2xl font-semibold mb-2">
                 Output
               </h2>
@@ -229,7 +216,22 @@ export function ProfileEditor({ initialProfile, isSharedProfile = false }: Profi
                 onLoadArchetypeProfile={handleLoadArchetypeProfile}
               />
             </div>
-          </aside>
+
+            {/* Value editor - now below */}
+            <div>
+              <h2 className="font-serif text-2xl font-semibold mb-2">
+                Value Scores
+              </h2>
+              <p className="text-sm text-muted-foreground mb-6">
+                Adjust each value from 0.0 to 7.0 using the sliders or input boxes.
+                Values are grouped by Schwartz's four higher-order categories.
+              </p>
+              <ValueEditor scores={scores} onChange={handleScoresChange} />
+            </div>
+          </section>
+
+          {/* Right sidebar: removed, now empty placeholder for layout */}
+          <aside className="order-3 hidden xl:block" />
         </div>
       </main>
 
