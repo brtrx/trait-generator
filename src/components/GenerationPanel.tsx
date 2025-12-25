@@ -4,6 +4,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Sparkles, FileText, Copy, Check, Loader2 } from 'lucide-react';
 import { ValueScores } from '@/lib/schwartz-values';
 import { generateDescription, generateSystemPrompt, generateBoth } from '@/lib/profile-generator';
+import { WhoAmIMostLike } from '@/components/WhoAmIMostLike';
 import { useToast } from '@/hooks/use-toast';
 
 interface GenerationPanelProps {
@@ -75,6 +76,9 @@ export function GenerationPanel({
 
   return (
     <div className="space-y-6">
+      {/* Who Am I Most Like - Featured component */}
+      <WhoAmIMostLike scores={scores} />
+
       {/* Generation buttons */}
       <div className="generation-panel">
         <h3 className="font-serif text-lg font-semibold mb-4">Generate Output</h3>
