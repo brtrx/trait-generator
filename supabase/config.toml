@@ -1,1 +1,4 @@
 project_id = "fkejnzklhrbujvlckubd"
+
+[functions.generate-archetype-image]
+verify_jwt = false
