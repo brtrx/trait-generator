@@ -15,7 +15,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <BrowserRouter basename="/trait-generator">
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/editor" element={<Index />} />
