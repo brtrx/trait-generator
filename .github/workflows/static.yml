@@ -47,8 +47,9 @@ jobs:
         with:
           
           # Upload dist directory (build output)
-          path: './dist'
-      - name: List dist contents (debug)
-        run: ls -la dist/
-        id: deployment
-        uses: actions/deploy-pages@v4
+- name: Upload artifact
+  uses: actions/upload-pages-artifact@v3
+  with:
+    path: './dist'
+- name: List dist contents (debug)
+  run: ls -la dist/
