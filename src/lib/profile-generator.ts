@@ -43,29 +43,25 @@ export function generateDescription(scores: ValueScores): string {
   const bottomValues = getBottomValues(scores, 3);
   const tensions = detectTensions(scores);
   
-  // Build the description
-  let description = '## VALUE PROFILE SUMMARY\n\n';
-  
-  // Top values paragraph
+  // Build the description as plain text (no markdown)
   const topLabels = topValues.map(v => v.label);
-  description += `This profile shows strongest emphasis on **${topLabels[0]}** (${scores[topValues[0].code]?.toFixed(2)}), `;
-  description += `**${topLabels[1]}** (${scores[topValues[1].code]?.toFixed(2)}), and `;
-  description += `**${topLabels[2]}** (${scores[topValues[2].code]?.toFixed(2)}). `;
+  let description = `This profile shows strongest emphasis on ${topLabels[0]} (${scores[topValues[0].code]?.toFixed(2)}), `;
+  description += `${topLabels[1]} (${scores[topValues[1].code]?.toFixed(2)}), and `;
+  description += `${topLabels[2]} (${scores[topValues[2].code]?.toFixed(2)}). `;
   
   // Describe what top values mean
-  description += `This suggests someone who ${getTopValueMeaning(topValues)}. `;
+  description += `This suggests someone who ${getTopValueMeaning(topValues)}.`;
   
   // Bottom values
   const bottomLabels = bottomValues.map(v => v.label);
-  description += `\n\nLess emphasized are **${bottomLabels[0]}** (${scores[bottomValues[0].code]?.toFixed(2)}), `;
-  description += `**${bottomLabels[1]}** (${scores[bottomValues[1].code]?.toFixed(2)}), and `;
-  description += `**${bottomLabels[2]}** (${scores[bottomValues[2].code]?.toFixed(2)}). `;
+  description += ` Less emphasized are ${bottomLabels[0]} (${scores[bottomValues[0].code]?.toFixed(2)}), `;
+  description += `${bottomLabels[1]} (${scores[bottomValues[1].code]?.toFixed(2)}), and `;
+  description += `${bottomLabels[2]} (${scores[bottomValues[2].code]?.toFixed(2)}). `;
   description += `This indicates ${getBottomValueMeaning(bottomValues)}.`;
   
   // Tensions
   if (tensions.length > 0) {
-    description += '\n\n**Notable patterns:** ';
-    description += tensions[0] + '.';
+    description += ` Notable patterns: ${tensions[0]}.`;
   }
   
   return description;
