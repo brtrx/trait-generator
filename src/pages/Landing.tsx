@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Compass, Users, Sparkles, ArrowRight, Plus, Star, GitCompare } from 'lucide-react';
-import { DbProfile } from '@/lib/profile-storage';
+import { Compass, Sparkles, ArrowRight, Plus, Star, GitCompare, Trash2 } from 'lucide-react';
+import { DbProfile, deleteProfile } from '@/lib/profile-storage';
 import { ValueScores } from '@/lib/schwartz-values';
 import { Json } from '@/integrations/supabase/types';
 import { ARCHETYPES, ARCHETYPE_CATEGORIES, archetypeToScores } from '@/lib/archetypes';
+import { useToast } from '@/hooks/use-toast';
 
 function jsonToScores(json: Json): ValueScores {
   return json as unknown as ValueScores;
@@ -14,6 +15,7 @@ function jsonToScores(json: Json): ValueScores {
 
 export default function Landing() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [profiles, setProfiles] = useState<DbProfile[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -54,6 +56,30 @@ export default function Landing() {
 
     fetchProfiles();
   }, []);
+
+  const handleDeleteProfile = async (e: React.MouseEvent, profileId: string, profileName: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!confirm(`Delete "${profileName}"? This cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      await deleteProfile(profileId);
+      setProfiles((prev) => prev.filter((p) => p.id !== profileId));
+      toast({
+        title: 'Profile deleted',
+        description: `"${profileName}" has been removed.`,
+      });
+    } catch (error) {
+      toast({
+        title: 'Delete failed',
+        description: error instanceof Error ? error.message : 'Unknown error occurred',
+        variant: 'destructive',
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -209,13 +235,22 @@ export default function Landing() {
                 <Link
                   key={profile.id}
                   to={`/p/${profile.id}`}
-                  className="group rounded-xl border bg-card p-5 hover:shadow-md hover:border-primary/30 transition-all"
+                  className="group rounded-xl border bg-card p-5 hover:shadow-md hover:border-primary/30 transition-all relative"
                 >
                   <div className="flex items-start justify-between mb-3">
-                    <h3 className="font-serif text-lg font-semibold group-hover:text-primary transition-colors">
+                    <h3 className="font-serif text-lg font-semibold group-hover:text-primary transition-colors pr-8">
                       {profile.name}
                     </h3>
-                    <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+                    <div className="flex items-center gap-2 absolute top-5 right-5">
+                      <button
+                        onClick={(e) => handleDeleteProfile(e, profile.id, profile.name)}
+                        className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors opacity-0 group-hover:opacity-100"
+                        title="Delete profile"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                      <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+                    </div>
                   </div>
                   {profile.description && (
                     <p className="text-sm text-muted-foreground line-clamp-2">
