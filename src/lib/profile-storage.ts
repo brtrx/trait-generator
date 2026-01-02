@@ -139,3 +139,20 @@ export function loadDraft(): DraftProfile | null {
 export function clearDraft(): void {
   localStorage.removeItem(DRAFT_KEY);
 }
+
+export async function deleteProfile(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('profiles')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting profile:', {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint
+    });
+    throw new Error('Unable to delete profile. Please try again.');
+  }
+}
