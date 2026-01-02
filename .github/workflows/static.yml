@@ -48,6 +48,7 @@ jobs:
           
           # Upload dist directory (build output)
           path: './dist'
-      - name: Deploy to GitHub Pages
+      - name: List dist contents (debug)
+        run: ls -la dist/
         id: deployment
         uses: actions/deploy-pages@v4
