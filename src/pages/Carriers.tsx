@@ -228,13 +228,16 @@ function TensionResult({
               </div>
 
               {/* Link to carrier details */}
-              <a 
-                href={`#carrier-list-${carrierId}`} 
+              <button 
+                onClick={() => {
+                  const el = document.getElementById(`carrier-list-${carrierId}`);
+                  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
                 className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
               >
                 <ArrowUp className="w-4 h-4" />
                 View full carrier description & parameters
-              </a>
+              </button>
             </div>
           </div>
         </CollapsibleContent>
