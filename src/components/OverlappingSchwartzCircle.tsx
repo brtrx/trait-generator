@@ -32,9 +32,9 @@ const ARCHETYPE_COLORS = [
 
 export function OverlappingSchwartzCircle({ archetypes, size = 360, tensionLines = [] }: OverlappingSchwartzCircleProps) {
   const center = size / 2;
-  const maxRadius = (size / 2) - 50;
+  const maxRadius = (size / 2) - 45; // Consistent with SchwartzCircle
   const minRadius = 15;
-  const labelRadius = maxRadius + 30;
+  const labelRadius = maxRadius + 28; // Consistent with SchwartzCircle
 
   const [tooltip, setTooltip] = useState<{
     x: number;
@@ -44,10 +44,9 @@ export function OverlappingSchwartzCircle({ archetypes, size = 360, tensionLines
     score: number;
   } | null>(null);
 
+  // Convert score (0-7) to radius - consistent with SchwartzCircle
   const scoreToRadius = (score: number) => {
-    // Archetype profiles use -3 to 3 range, convert to 0-7 for display (3.5 is neutral)
-    const displayScore = score + 3.5;
-    const normalized = Math.max(0, Math.min(1, displayScore / 7));
+    const normalized = score / 7;
     return minRadius + normalized * (maxRadius - minRadius);
   };
 
