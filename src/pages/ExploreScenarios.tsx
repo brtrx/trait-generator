@@ -31,15 +31,25 @@ export default function ExploreScenarios() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<string[]>(['fictional']);
 
+  // Weight to score mapping: -3 to 3 range → 0.5 to 6.5 (0-7 scale)
+  const weightToScore = (weight: number) => {
+    const mapping: Record<number, number> = {
+      [-3]: 0.5, [-2]: 1.5, [-1]: 2.5, [0]: 3.5, [1]: 4.5, [2]: 5.5, [3]: 6.5,
+    };
+    return mapping[weight] ?? 3.5;
+  };
+
   // Get archetype data for selected personas
   const personaData = useMemo(() => {
     return selectedPersonas.map((name, index) => {
       const archetype = ARCHETYPES.find(a => a.name === name);
       if (!archetype) return null;
       
+      // Convert valueProfile (-3 to 3) to scores (0-7 scale)
       const scores: Record<string, number> = {};
       SCHWARTZ_VALUES.forEach(v => {
-        scores[v.code] = archetype.valueProfile[v.code] ?? 0;
+        const weight = archetype.valueProfile[v.code] ?? 0;
+        scores[v.code] = weightToScore(weight);
       });
       
       return {
