@@ -224,14 +224,14 @@ export function ProfileEditor({ initialProfile, isSharedProfile = false }: Profi
       <footer className="border-t py-6 mt-12">
         <div className="container text-center text-sm text-muted-foreground">
           <p>
-            Based on the{' '}
+            Based on {' '}
             <a 
-              href="https://www.researchgate.net/publication/316705732" 
+              href="https://www.researchgate.net/publication/306432422_The_Refined_Theory_of_Basic_Values" 
               target="_blank" 
               rel="noopener noreferrer"
               className="text-primary hover:underline"
             >
-              PVQ-RR (Revised)
+              The Refined Theory of Basic Values
             </a>
             {' '}by Shalom H. Schwartz
           </p>
