@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Loader2, Swords } from 'lucide-react';
 import { toast } from 'sonner';
 import { Archetype, ARCHETYPES } from '@/lib/archetypes';
-import { VideoPromptPanel } from '@/components/VideoPromptPanel';
 
 const CONFLICT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-conflict-scenario`;
 
@@ -168,15 +167,9 @@ export function ConflictScenario({ selectedArchetypes }: ConflictScenarioProps) 
       </div>
 
       {scenario ? (
-        <>
-          <div className="prose prose-sm max-w-none">
-            {renderScenario(scenario)}
-          </div>
-          <VideoPromptPanel 
-            scenario={scenario} 
-            archetypeNames={selectedArchetypes} 
-          />
-        </>
+        <div className="prose prose-sm max-w-none">
+          {renderScenario(scenario)}
+        </div>
       ) : (
         <p className="text-sm text-muted-foreground text-center py-8">
           Click "Generate Conflict" to see a scenario where these characters' 
