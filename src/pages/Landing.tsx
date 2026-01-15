@@ -4,10 +4,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Compass, Sparkles, ArrowRight, Plus, Star, GitCompare, Trash2, Layers, Users } from 'lucide-react';
 import { DbProfile, deleteProfile } from '@/lib/profile-storage';
-import { ValueScores } from '@/lib/schwartz-values';
+import { ValueScores, SAMPLE_PROFILE_SCORES } from '@/lib/schwartz-values';
 import { Json } from '@/integrations/supabase/types';
 import { ARCHETYPES, ARCHETYPE_CATEGORIES, archetypeToScores } from '@/lib/archetypes';
 import { useToast } from '@/hooks/use-toast';
+import { SchwartzCircle } from '@/components/SchwartzCircle';
 
 function jsonToScores(json: Json): ValueScores {
   return json as unknown as ValueScores;
@@ -118,20 +119,25 @@ export default function Landing() {
       {/* Schwartz Theory Section */}
       <section className="py-12 border-t bg-muted/30">
         <div className="container">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="font-serif text-2xl font-bold mb-6">The Schwartz Theory of Basic Values</h2>
-            <div className="space-y-4 text-muted-foreground">
-              <p>
-                Shalom Schwartz's theory identifies 19 universal values that exist across all human cultures. 
-                These values—from Security and Tradition to Stimulation and Self-Direction—are arranged in a 
-                circular structure where adjacent values are compatible and opposing values are in tension.
-              </p>
-              <p>
-                The theory has been validated across 80+ countries and hundreds of thousands of participants, 
-                making it one of the most robust cross-cultural frameworks for understanding what humans 
-                fundamentally care about. The circular structure reveals a deeper truth: pursuing some values 
-                necessarily comes at the cost of others.
-              </p>
+          <div className="max-w-5xl mx-auto">
+            <h2 className="font-serif text-2xl font-bold mb-6 text-center">The Schwartz Theory of Basic Values</h2>
+            <div className="grid md:grid-cols-2 gap-8 items-center">
+              <div className="space-y-4 text-muted-foreground">
+                <p>
+                  Shalom Schwartz's theory identifies 19 universal values that exist across all human cultures. 
+                  These values—from Security and Tradition to Stimulation and Self-Direction—are arranged in a 
+                  circular structure where adjacent values are compatible and opposing values are in tension.
+                </p>
+                <p>
+                  The theory has been validated across 80+ countries and hundreds of thousands of participants, 
+                  making it one of the most robust cross-cultural frameworks for understanding what humans 
+                  fundamentally care about. The circular structure reveals a deeper truth: pursuing some values 
+                  necessarily comes at the cost of others.
+                </p>
+              </div>
+              <div className="flex justify-center pb-16">
+                <SchwartzCircle scores={SAMPLE_PROFILE_SCORES} size={320} />
+              </div>
             </div>
           </div>
         </div>
