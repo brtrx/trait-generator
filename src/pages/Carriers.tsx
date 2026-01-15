@@ -282,7 +282,7 @@ export default function Carriers() {
             </Link>
           </Button>
           <div>
-            <h1 className="font-serif text-2xl font-bold">Carriers & Polarity</h1>
+            <h1 className="font-serif text-2xl font-bold">Tension Carriers & Polarity</h1>
             <p className="text-sm text-muted-foreground">
               Decision-space primitives that expose value tensions
             </p>
@@ -294,7 +294,7 @@ export default function Carriers() {
       <section className="py-12 border-b">
         <div className="container max-w-4xl">
           <div className="prose prose-gray dark:prose-invert max-w-none">
-            <h2 className="font-serif text-3xl font-bold mb-6">Understanding Carriers</h2>
+            <h2 className="font-serif text-3xl font-bold mb-6">Understanding Tension Carriers</h2>
             
             <div className="grid md:grid-cols-2 gap-6 not-prose mb-8">
               <div className="p-6 rounded-xl border bg-card">

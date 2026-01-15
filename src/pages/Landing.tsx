@@ -159,12 +159,11 @@ export default function Landing() {
                 </p>
               </div>
               <div>
-                <h3 className="font-semibold text-lg mb-3">Value Carriers</h3>
+                <h3 className="font-semibold text-lg mb-3">Tension Carriers</h3>
                 <p className="text-muted-foreground">
-                  Values don't exist in abstraction—they're expressed through "carriers" like money, 
-                  time, attention, and social status. Each carrier has a different polarity for each 
-                  value. Understanding carriers reveals how abstract values become concrete conflicts 
-                  and how the same resource can mean completely different things to different people.
+                  Tension Carriers are forms of scarcity or constraint that force tradeoffs. They make 
+                  latent value differences behaviorally visible by empowering or antagonising values 
+                  in different ways.
                 </p>
               </div>
             </div>
@@ -199,10 +198,10 @@ export default function Landing() {
               <Link to="/carriers" className="group p-5 rounded-xl border bg-card hover:border-primary/30 hover:shadow-md transition-all">
                 <div className="flex items-center gap-3 mb-2">
                   <Layers className="w-5 h-5 text-primary" />
-                  <h3 className="font-semibold group-hover:text-primary transition-colors">Explore Carriers</h3>
+                  <h3 className="font-semibold group-hover:text-primary transition-colors">Explore Tension Carriers</h3>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  See how values express through concrete carriers like money, time, and attention.
+                  Discover the constraints that force tradeoffs and make value differences visible.
                 </p>
               </Link>
               <Link to="/scenarios" className="group p-5 rounded-xl border bg-card hover:border-primary/30 hover:shadow-md transition-all">
