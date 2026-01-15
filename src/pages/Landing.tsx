@@ -249,6 +249,27 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Take the Schwartz Values Test */}
+      <section className="py-12 border-t bg-muted/30">
+        <div className="container">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="font-serif text-2xl font-bold mb-4">Take the Schwartz Values Test</h2>
+            <p className="text-muted-foreground">
+              For a fee, an organisation like{' '}
+              <a
+                href="https://www.findyourvalues.com/?utm_campaign=Core+Values+Finder&utm_source=Justin+Tauber&utm_medium=affiliate&ref=anotherjustin74"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                Find Your Values
+              </a>
+              {' '}will conduct the PVQ-RR survey online to assess your personal value scheme.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Saved Profiles */}
       <section id="profiles" className="py-12 border-t bg-muted/30">
         <div className="container">
