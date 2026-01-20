@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { ChevronDown, Zap, TrendingUp, ArrowUpDown } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ChevronDown, Zap, TrendingUp, ArrowUpDown, ArrowRight } from 'lucide-react';
 import { ValueScores } from '@/lib/schwartz-values';
 import {
   getTopSensitiveCarriers,
@@ -171,10 +172,17 @@ export function CarrierSensitivityPanel({ scores }: CarrierSensitivityPanelProps
         <h3 className="font-serif text-lg font-semibold mb-2">
           Carrier Sensitivity
         </h3>
-        <p className="text-sm text-muted-foreground mb-4">
+        <p className="text-sm text-muted-foreground mb-3">
           These carriers have the strongest effect on this profile. Positive values indicate 
           the carrier satisfies the profile's values; negative values indicate frustration.
         </p>
+        <Link 
+          to="/carriers" 
+          className="inline-flex items-center gap-1 text-sm text-primary hover:underline mb-4"
+        >
+          Explore Tension Carriers
+          <ArrowRight className="w-3 h-3" />
+        </Link>
         <div className="space-y-2">
           {topCarriers.map(sensitivity => (
             <TopCarrierCard 
