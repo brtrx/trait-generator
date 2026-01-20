@@ -94,7 +94,9 @@ export default function ExploreScenarios() {
     const [persona1, persona2] = personaData;
     const tensions: TensionLine[] = [];
     
-    // For each pair of values, calculate geometric distance between persona positions
+    // Calculate BETWEEN-PERSONA tensions, not geometric opposition
+    // A real tension is when persona1 is high on valueA while persona2 is high on valueB
+    // AND these values are conceptually opposed (different areas of the circumplex)
     SCHWARTZ_VALUES.forEach((valueA, indexA) => {
       SCHWARTZ_VALUES.forEach((valueB, indexB) => {
         if (indexA >= indexB) return; // Avoid duplicates
@@ -104,24 +106,32 @@ export default function ExploreScenarios() {
         const score2A = persona2.valueProfile[valueA.code] ?? 0;
         const score2B = persona2.valueProfile[valueB.code] ?? 0;
         
-        // Get positions for each persona on both values
-        const pos1A = getValuePosition(indexA, score1A);
-        const pos1B = getValuePosition(indexB, score1B);
-        const pos2A = getValuePosition(indexA, score2A);
-        const pos2B = getValuePosition(indexB, score2B);
+        // Cross-preference tension: persona1 prefers A over B, persona2 prefers B over A
+        // Calculate how much persona1 leans toward A and persona2 leans toward B
+        const persona1PreferenceForA = score1A - score1B; // positive = prefers A
+        const persona2PreferenceForB = score2B - score2A; // positive = prefers B
         
-        // Calculate cross-distances: how far apart are the personas on opposing values?
-        // Tension = distance from persona1's valueA to persona2's valueB + vice versa
-        const crossDistance = getDistance(pos1A, pos2B) + getDistance(pos1B, pos2A);
+        // Both should be positive for a true cross-preference tension
+        // The tension magnitude is the product of these preferences
+        const crossPreferenceTension = persona1PreferenceForA * persona2PreferenceForB;
+        
+        // Also consider direct score divergence: persona1 high on A, persona2 low on A
+        // AND persona1 low on B, persona2 high on B
+        const divergenceA = score1A - score2A; // positive = persona1 higher on A
+        const divergenceB = score2B - score1B; // positive = persona2 higher on B
+        const directDivergenceTension = (divergenceA + divergenceB) / 2;
+        
+        // Combined tension score: cross-preference + direct divergence
+        const combinedTension = Math.max(0, crossPreferenceTension) + Math.max(0, directDivergenceTension * 2);
         
         // Only consider significant tensions
-        if (crossDistance > 1.0) {
+        if (combinedTension > 1.0) {
           const carrierImpacts = findBestCarriersForTension(valueA.code, valueB.code, 3);
           
           tensions.push({
             valueA: valueA.code,
             valueB: valueB.code,
-            scoreDiff: crossDistance,
+            scoreDiff: combinedTension,
             carriers: carrierImpacts.map(c => ({
               carrierId: c.carrier.id as CarrierId,
               polarityDiff: c.polarityDiff,
@@ -131,7 +141,7 @@ export default function ExploreScenarios() {
       });
     });
     
-    // Sort by geometric distance and take top 3
+    // Sort by tension score and take top 3
     return tensions
       .sort((a, b) => b.scoreDiff - a.scoreDiff)
       .slice(0, 3);
