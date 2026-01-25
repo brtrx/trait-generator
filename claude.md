@@ -14,16 +14,16 @@ An interactive philosophical tool for exploring Schwartz's Theory of Basic Human
 
 ```
 src/
-├── pages/           # Route components (Landing, Index, Compare, Carriers, ExploreScenarios)
+├── pages/           # Route components (Landing, Index, Compare, Carriers, ExploreScenarios, SharedProfile, NotFound)
 ├── components/      # React components
-│   ├── ui/          # shadcn/ui primitives (40+ components)
+│   ├── ui/          # shadcn/ui primitives (~48 components)
 │   ├── ProfileEditor.tsx      # Main editor with sidebar & visualization
 │   ├── SchwartzCircle.tsx     # Value circumplex visualization
 │   └── ...
 ├── lib/             # Core business logic
 │   ├── schwartz-values.ts     # 19 Schwartz value definitions
-│   ├── archetypes.ts          # 50+ character profiles (~1000 lines)
-│   ├── carriers.ts            # 12 decision-space carriers (~1100 lines)
+│   ├── archetypes.ts          # 80+ character profiles (~770 lines)
+│   ├── carriers.ts            # 12 decision-space carriers (~930 lines)
 │   ├── profile-storage.ts     # Supabase + localStorage integration
 │   └── validation.ts          # Zod schemas
 ├── hooks/           # Custom hooks (use-profile-draft, use-toast, use-mobile)
@@ -31,7 +31,7 @@ src/
 
 supabase/
 ├── migrations/      # Database schema (profiles table with JSONB scores)
-└── functions/       # Edge functions (compare-archetypes, generate-persona-scenario)
+└── functions/       # Edge functions (compare-archetypes, generate-persona-scenario, generate-archetype-image, generate-conflict-scenario)
 ```
 
 ## Commands
@@ -77,13 +77,13 @@ Map value-to-carrier relationships (-1 to +1) showing if a carrier satisfies or 
 
 ```sql
 profiles (
-  id UUID PRIMARY KEY,
-  name TEXT,
-  scores JSONB,        -- Record of 19 value scores
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL DEFAULT 'Untitled Profile',
+  scores JSONB NOT NULL DEFAULT '{}',  -- Record of 19 value scores
   description TEXT,
   system_prompt TEXT,
-  created_at TIMESTAMP,
-  updated_at TIMESTAMP
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
 )
 ```
 

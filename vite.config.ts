@@ -5,7 +5,7 @@ import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
   // Only use base path when explicitly building for GitHub Pages
-  base: process.env.GITHUB_ACTIONS ? '/trait-generator/' : '/',
+  base: process.env.GITHUB_ACTIONS ? '/values-explorer/' : '/',
   server: {
     host: "::",
     port: 8080,
