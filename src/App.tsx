@@ -9,6 +9,7 @@ import Compare from "./pages/Compare";
 import Carriers from "./pages/Carriers";
 import ExploreScenarios from "./pages/ExploreScenarios";
 import SharedProfile from "./pages/SharedProfile";
+import DataExport from "./pages/DataExport";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => {
             <Route path="/carriers" element={<Carriers />} />
             <Route path="/scenarios" element={<ExploreScenarios />} />
             <Route path="/p/:id" element={<SharedProfile />} />
+            <Route path="/export" element={<DataExport />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Router>
